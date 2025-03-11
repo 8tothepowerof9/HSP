@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 import pandas as pd
 import os
+import time
 
 # Initialize MediaPipe
 mp_hands = mp.solutions.hands
@@ -9,7 +10,7 @@ hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1, min_detection_c
 mp_drawing = mp.solutions.drawing_utils
 
 # Create a folder to store data
-dataset_path = "HSP/data"
+dataset_path = "data"
 if not os.path.exists(dataset_path):
     os.makedirs(dataset_path, exist_ok=True)
 
@@ -39,6 +40,7 @@ def capture_data(letter, num_samples=200):
                         landmarks.extend([lm.x, lm.y, lm.z])
                     
                     data.append(landmarks)
+                    time.sleep(0.1)
 
         # Draw a start button on the screen
         button_text = "Press 'S' to Start, 'Q' to Quit"
@@ -69,4 +71,6 @@ def capture_data(letter, num_samples=200):
     print(f"Saved {num_samples} samples for letter '{letter}' at {csv_path}")
 
 # Example usage: capture data for letter 'A'
+
+# capture_data("A", num_samples=200)
 capture_data("B", num_samples=200)
