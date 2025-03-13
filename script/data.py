@@ -78,7 +78,4 @@ def capture_data(letter, num_samples=200):
     print(f"Saved {num_samples} samples for letter '{letter}' at {csv_path}")
 
 
-# Example usage: capture data for letter 'A'
-
-# capture_data("A", num_samples=200)
 capture_data("B", num_samples=200)
