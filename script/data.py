@@ -3,6 +3,7 @@ import mediapipe as mp
 import pandas as pd
 import os
 import time
+from .utils import read_command
 
 # Initialize MediaPipe
 mp_hands = mp.solutions.hands
@@ -17,7 +18,7 @@ if not os.path.exists(dataset_path):
     os.makedirs(dataset_path, exist_ok=True)
 
 
-def capture_data(letter, num_samples=200):
+def capture_data(letter, delay=0.1, num_samples=200):
     """Captures ASL hand landmarks and displays them on screen."""
     cap = cv2.VideoCapture(0)  # Use camera index 0
     data = []  # Store landmark data
@@ -45,7 +46,7 @@ def capture_data(letter, num_samples=200):
                         landmarks.extend([lm.x, lm.y, lm.z])
 
                     data.append(landmarks)
-                    time.sleep(0.1)
+                    time.sleep(delay)
 
         # Draw a start button on the screen
         button_text = "Press 'S' to Start, 'Q' to Quit"
@@ -78,4 +79,6 @@ def capture_data(letter, num_samples=200):
     print(f"Saved {num_samples} samples for letter '{letter}' at {csv_path}")
 
 
-capture_data("B", num_samples=200)
+if __name__ == "__main__":
+    args = read_command()
+    capture_data(args.character, args.delay, args.num_samples)
