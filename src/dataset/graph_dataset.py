@@ -52,9 +52,6 @@ class GraphHandSignDataset(GeoDataset):
         self.data = np.array(self.data)
         self.labels = np.array(self.labels)
 
-        print(f"Data shape: {self.data.shape}")
-        print(f"Labels shape: {self.labels.shape}")
-
         # Depending on the split, split the data into train and test
         if self.split == "train":
             self.data, _, self.labels, _ = train_test_split(

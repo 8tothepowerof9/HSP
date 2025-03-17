@@ -1,0 +1,5 @@
+CHECKPOINT_PATH = "checkpoints"
+LOG_PATH = "logs"
+REPORT_PATH = "reports"
+LOG_INTERVAL = 10
+EARLY_STOPPING_PATIENCE = 5

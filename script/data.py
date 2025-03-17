@@ -3,7 +3,7 @@ import mediapipe as mp
 import pandas as pd
 import os
 import time
-from .utils import read_command
+from utils import read_command
 
 # Initialize MediaPipe
 mp_hands = mp.solutions.hands
