@@ -25,8 +25,6 @@ class BaseTrainer(ABC):
         self.scheduler = scheduler
 
         # TODO: Change later
-        # num_classes = len(LABEL_MAPPING)
-        num_classes = 2
         task = "binary"
         self.metrics = {
             "accuracy": Accuracy(task=task).to(device),

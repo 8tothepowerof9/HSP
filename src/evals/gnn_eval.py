@@ -1,11 +1,15 @@
 import cv2
 import numpy as np
 import torch
+import pandas as pd
 import mediapipe as mp
+import matplotlib.pyplot as plt
+import seaborn as sns
 import networkx as nx
 from torch_geometric.data import Data
 from .base import BaseEvaluator
 from dataset import *
+from trainers import REPORT_PATH
 
 
 class GNNEvaluator(BaseEvaluator):
@@ -191,10 +195,82 @@ class GNNEvaluator(BaseEvaluator):
         cv2.destroyAllWindows()
 
     def evaluate(self, dataloader):
-        pass
+        num_batches = len(dataloader)
+
+        # Metrics
+        accuracy = self.metrics["accuracy"]
+        f1 = self.metrics["f1"]
+        auroc = self.metrics["auroc"]
+        accuracy.reset()
+        f1.reset()
+        auroc.reset()
+
+        self.model.eval()
+        with torch.no_grad():
+            for data in dataloader:
+                data = data.to(self.device)
+                output = self.model(data)
+
+                # Metrics
+                output = output.argmax(dim=1)
+                accuracy(output, data.y)
+                f1(output, data.y)
+                auroc(output, data.y)
+
+        accuracy_score = accuracy.compute().item()
+        f1_score = f1.compute().item()
+        auroc_score = auroc.compute().item()
+
+        # Print
+        print(
+            f"Evaluation Summary: Accuracy: {accuracy_score:.4f} | F1: {f1_score:.4f} | AUROC: {auroc_score:.4f}"
+        )
 
     def plot_history(self):
-        pass
+        # Load log and plot
+        df = pd.read_csv(self.log)
+        # Add epoch column
+        df["epoch"] = df.index + 1
+
+        # Plot multiple plots
+        _, axes = plt.subplots(2, 2, figsize=(15, 10))
+        sns.lineplot(x="epoch", y="loss", data=df, ax=axes[0, 0], label="Training Loss")
+        sns.lineplot(
+            x="epoch", y="val_loss", data=df, ax=axes[0, 0], label="Validation Loss"
+        )
+        axes[0, 0].set_title("Loss")
+
+        sns.lineplot(
+            x="epoch", y="accuracy", data=df, ax=axes[0, 1], label="Training Accuracy"
+        )
+        sns.lineplot(
+            x="epoch",
+            y="val_accuracy",
+            data=df,
+            ax=axes[0, 1],
+            label="Validation Accuracy",
+        )
+        axes[0, 1].set_title("Accuracy")
+
+        sns.lineplot(x="epoch", y="f1", data=df, ax=axes[1, 0], label="Training F1")
+        sns.lineplot(
+            x="epoch", y="val_f1", data=df, ax=axes[1, 0], label="Validation F1"
+        )
+        axes[1, 0].set_title("F1 Score")
+
+        sns.lineplot(
+            x="epoch", y="auroc", data=df, ax=axes[1, 1], label="Training AUROC"
+        )
+        sns.lineplot(
+            x="epoch", y="val_auroc", data=df, ax=axes[1, 1], label="Validation AUROC"
+        )
+        axes[1, 1].set_title("AUROC")
+
+        plt.tight_layout()
+        plt.show()
+
+        if self.save:
+            plt.savefig(f"{REPORT_PATH}/{self.model.name}_history.png")
 
     def confusion_matrix(self, dataloader):
         pass

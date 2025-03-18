@@ -55,12 +55,14 @@ class GraphHandSignDataset(GeoDataset):
         # Depending on the split, split the data into train and test
         if self.split == "train":
             self.data, _, self.labels, _ = train_test_split(
-                self.data, self.labels, test_size=0.2, random_state=RANDOM_STATE
+                self.data, self.labels, test_size=0.25, random_state=RANDOM_STATE
             )
         elif self.split == "test":
             _, self.data, _, self.labels = train_test_split(
-                self.data, self.labels, test_size=0.2, random_state=RANDOM_STATE
+                self.data, self.labels, test_size=0.25, random_state=RANDOM_STATE
             )
+        else:
+            raise ValueError("Invalid split. Choose either 'train' or 'test'.")
 
     def __construct_graph__(self, landmarks):
         G = nx.Graph()

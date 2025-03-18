@@ -1,4 +1,5 @@
 import argparse
+import json
 
 
 def read_command():
@@ -14,3 +15,15 @@ def read_command():
     args = parser.parse_args()
 
     return args
+
+
+def read_config():
+    parser = argparse.ArgumentParser(description="Load configuration file")
+    parser.add_argument("--config", type=str, help="Path to the configuration file")
+    args = parser.parse_args()
+
+    # Read and parse json
+    with open(args.config, "r") as f:
+        config = json.load(f)
+
+    return config

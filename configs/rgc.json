@@ -1,0 +1,31 @@
+{
+    "data": {
+        "type": "graph",
+        "bs": 32
+    },
+    "model": {
+        "type": "rgc", 
+        "name": "rgc",
+        "hidden_dims": [64, 64, 64],
+        "dropout_rate": 0.5
+    },
+    "train": {
+        "epochs": 50,
+        "lr": 0.001,
+        "weight_decay": 0.0001,
+        "betas": [0.9, 0.999],
+        "step_size": 20,
+        "gamma": 0.1,
+        "save": true
+    },
+    "eval": {
+        "data": "test",
+        "plot_history": true,
+        "evaluate": true,
+        "static_predict": true,
+        "image_path": "tests/A.jpg",
+        "realtime_predict": true,
+        "confusion_matrix": true,
+        "save": true
+    }
+}

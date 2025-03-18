@@ -2,15 +2,23 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 from torch_geometric.nn import GCNConv, global_mean_pool
+from .base import BaseModel
 
 
-class RGCModel(nn.Module):
-    def __init__(
-        self, in_channels, hidden_dims, out_channels, dropout_rate=0.5, name="rgc"
-    ):
-        super().__init__()
+class RGCModel(BaseModel):
+    def __init__(self, config):
+        super().__init__(config)
 
-        self.name = name
+        self.name = config["model"]["name"]
+        self.lr = config["train"]["lr"]
+        self.weight_decay = config["train"]["weight_decay"]
+        self.betas = tuple(config["train"]["betas"])
+
+        in_channels = 4
+        hidden_dims = config["model"]["hidden_dims"]
+        out_channels = 2  # TODO: Replace with number of classes later
+        dropout_rate = config["model"]["dropout_rate"]
+
         self.layers = nn.ModuleList()
         current_dim = in_channels
 
@@ -46,3 +54,14 @@ class RGCModel(nn.Module):
         x = self.fc(x)
 
         return F.log_softmax(x, dim=1)
+
+    def get_criterion(self):
+        return torch.optim.Adam(
+            self.parameters(),
+            lr=self.lr,
+            weight_decay=self.weight_decay,
+            betas=self.betas,
+        )
+
+    def get_optimizer(self):
+        return torch.nn.CrossEntropyLoss()
