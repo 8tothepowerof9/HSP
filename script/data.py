@@ -23,7 +23,7 @@ def capture_data(letter, delay=0.1, num_samples=200):
     cap = cv2.VideoCapture(0)  # Use camera index 0
     data = []  # Store landmark data
     collecting = False  # Wait until button is pressed
-
+    
     while True:
         ret, frame = cap.read()
         if not ret:
