@@ -73,10 +73,13 @@ def capture_data(letter, delay=0.1, num_samples=200):
     cv2.destroyAllWindows()
 
     # Convert to DataFrame and save
-    df = pd.DataFrame(data)
-    csv_path = f"{dataset_path}/{letter}.csv"
-    df.to_csv(csv_path, index=False, header=False)
-    print(f"Saved {num_samples} samples for letter '{letter}' at {csv_path}")
+    if len(data) == 0:
+        print("No data collected!")
+    else:
+        df = pd.DataFrame(data)
+        csv_path = f"{dataset_path}/{letter}.csv"
+        df.to_csv(csv_path, index=False, header=False)
+        print(f"Saved {num_samples} samples for letter '{letter}' at {csv_path}")
 
 
 if __name__ == "__main__":
