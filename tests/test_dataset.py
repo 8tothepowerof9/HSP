@@ -6,7 +6,7 @@ import networkx as nx
 import numpy as np
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
-from dataset import GraphHandSignDataset
+from dataset import GraphHandSignDataset, LABEL_MAPPING
 
 
 def visualize_graph(data):
@@ -43,7 +43,10 @@ print("Edge index (connectivity):")
 print(sample.edge_index)  # Should print edges in COO format
 
 print("Label: ")
-print(sample.y)  # Should print a tensor with the label
+y = sample.y.item()
+# Get by item from dict
+label = [k for k, v in LABEL_MAPPING.items() if v == y][0]
+print(label)
 
 loader = DataLoader(ds, batch_size=32, shuffle=True)
 for batch in loader:

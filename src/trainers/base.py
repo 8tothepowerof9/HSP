@@ -2,8 +2,8 @@ import os
 from abc import abstractmethod, ABC
 import torch
 import pandas as pd
-from torchmetrics import Accuracy, F1Score, AUROC
-from dataset import LABEL_MAPPING
+from torchmetrics import Accuracy, F1Score
+from dataset import NUM_LABELS
 from .config import *
 
 
@@ -24,12 +24,10 @@ class BaseTrainer(ABC):
         self.optimizer = optimizer
         self.scheduler = scheduler
 
-        # TODO: Change later
-        task = "binary"
+        task = "multiclass"
         self.metrics = {
-            "accuracy": Accuracy(task=task).to(device),
-            "f1": F1Score(task=task).to(device),
-            "auroc": AUROC(task=task).to(device),
+            "accuracy": Accuracy(task=task, num_classes=NUM_LABELS).to(device),
+            "f1": F1Score(task=task, num_classes=NUM_LABELS).to(device),
         }
         self.device = device
         self.min_lr = min_lr
@@ -39,10 +37,8 @@ class BaseTrainer(ABC):
             "val_loss": [],
             "accuracy": [],
             "f1": [],
-            "auroc": [],
             "val_accuracy": [],
             "val_f1": [],
-            "val_auroc": [],
             "lr": [],
         }
         self.epochs = epochs

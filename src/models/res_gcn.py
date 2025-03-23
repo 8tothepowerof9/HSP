@@ -3,6 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 from torch_geometric.nn import GCNConv, global_mean_pool
 from .base import BaseModel
+from dataset import NUM_LABELS
 
 
 class RGCModel(BaseModel):
@@ -16,7 +17,7 @@ class RGCModel(BaseModel):
 
         in_channels = 4
         hidden_dims = config["model"]["hidden_dims"]
-        out_channels = 2  # TODO: Replace with number of classes later
+        out_channels = NUM_LABELS
         dropout_rate = config["model"]["dropout_rate"]
 
         self.layers = nn.ModuleList()

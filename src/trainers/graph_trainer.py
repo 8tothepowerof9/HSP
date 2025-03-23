@@ -1,7 +1,5 @@
 import time
 import torch
-from torch import nn, optim
-import torch.nn.functional as F
 import pandas as pd
 from .base import BaseTrainer
 from .utils import EarlyStopping, seconds_to_minutes_str
@@ -33,10 +31,8 @@ class GraphTrainer(BaseTrainer):
         # Metrics
         accuracy = self.metrics["accuracy"]
         f1 = self.metrics["f1"]
-        auroc = self.metrics["auroc"]
         accuracy.reset()
         f1.reset()
-        auroc.reset()
 
         self.model.train()
         for batch, data in enumerate(dataloader):
@@ -51,9 +47,9 @@ class GraphTrainer(BaseTrainer):
             # Metrics
             total_loss += loss.item()
             output = output.argmax(dim=1)
+
             accuracy(output, data.y)
             f1(output, data.y)
-            auroc(output, data.y)
 
             # Logging
             if batch % LOG_INTERVAL == 0:
@@ -63,20 +59,18 @@ class GraphTrainer(BaseTrainer):
         avg_loss = total_loss / num_batches
         accuracy_score = accuracy.compute().item()
         f1_score = f1.compute().item()
-        auroc_score = auroc.compute().item()
 
         # Save metrics
         lr = self.optimizer.param_groups[0]["lr"]
         self.log["loss"].append(avg_loss)
         self.log["accuracy"].append(accuracy_score)
         self.log["f1"].append(f1_score)
-        self.log["auroc"].append(auroc_score)
         self.log["lr"].append(lr)
 
         end = time.time()
 
         print(
-            f"Train summary: [{end-start:.3f}]: \n Avg Loss: {avg_loss:.4f} | Accuracy: {accuracy_score:.4f} | F1: {f1_score:.4f} | AUROC: {auroc_score:.4f} | lr: {lr}"
+            f"Train summary: [{end-start:.3f}]: \n Avg Loss: {avg_loss:.4f} | Accuracy: {accuracy_score:.4f} | F1: {f1_score:.4f} | lr: {lr}"
         )
 
         return end - start
@@ -89,10 +83,8 @@ class GraphTrainer(BaseTrainer):
         # Metrics
         accuracy = self.metrics["accuracy"]
         f1 = self.metrics["f1"]
-        auroc = self.metrics["auroc"]
         accuracy.reset()
         f1.reset()
-        auroc.reset()
 
         self.model.eval()
 
@@ -107,23 +99,20 @@ class GraphTrainer(BaseTrainer):
                 output = output.argmax(dim=1)
                 accuracy(output, data.y)
                 f1(output, data.y)
-                auroc(output, data.y)
 
         avg_loss = total_loss / num_batches
         accuracy_score = accuracy.compute().item()
         f1_score = f1.compute().item()
-        auroc_score = auroc.compute().item()
 
         # Save metrics
         self.log["val_loss"].append(avg_loss)
         self.log["val_accuracy"].append(accuracy_score)
         self.log["val_f1"].append(f1_score)
-        self.log["val_auroc"].append(auroc_score)
 
         end = time.time()
 
         print(
-            f"Validation summary: [{end-start:.3f}]: \n Avg Loss: {avg_loss:.4f} | Accuracy: {accuracy_score:.4f} | F1: {f1_score:.4f} | AUROC: {auroc_score:.4f}"
+            f"Validation summary: [{end-start:.3f}]: \n Avg Loss: {avg_loss:.4f} | Accuracy: {accuracy_score:.4f} | F1: {f1_score:.4f}"
         )
 
         return end - start

@@ -3,6 +3,7 @@ from torch import nn
 from torch.nn import functional as F
 from torch_geometric.nn import GCNConv, global_mean_pool
 from .base import BaseModel
+from dataset import NUM_LABELS
 
 
 class GraphBaseline(BaseModel):
@@ -16,7 +17,7 @@ class GraphBaseline(BaseModel):
         self.name = config["model"]["name"]
         in_channels = 4  # [x, y, z, angle]
         hidden_dim = config["model"]["hidden_dim"]
-        out_channels = 2  # TODO: Replace with number of classes later
+        out_channels = NUM_LABELS
 
         self.conv1 = GCNConv(in_channels, hidden_dim)
         self.conv2 = GCNConv(hidden_dim, hidden_dim)

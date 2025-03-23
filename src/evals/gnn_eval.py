@@ -200,10 +200,8 @@ class GNNEvaluator(BaseEvaluator):
         # Metrics
         accuracy = self.metrics["accuracy"]
         f1 = self.metrics["f1"]
-        auroc = self.metrics["auroc"]
         accuracy.reset()
         f1.reset()
-        auroc.reset()
 
         self.model.eval()
         with torch.no_grad():
@@ -215,15 +213,13 @@ class GNNEvaluator(BaseEvaluator):
                 output = output.argmax(dim=1)
                 accuracy(output, data.y)
                 f1(output, data.y)
-                auroc(output, data.y)
 
         accuracy_score = accuracy.compute().item()
         f1_score = f1.compute().item()
-        auroc_score = auroc.compute().item()
 
         # Print
         print(
-            f"Evaluation Summary: Accuracy: {accuracy_score:.4f} | F1: {f1_score:.4f} | AUROC: {auroc_score:.4f}"
+            f"Evaluation Summary: Accuracy: {accuracy_score:.4f} | F1: {f1_score:.4f}"
         )
 
     def plot_history(self):
@@ -257,14 +253,6 @@ class GNNEvaluator(BaseEvaluator):
             x="epoch", y="val_f1", data=df, ax=axes[1, 0], label="Validation F1"
         )
         axes[1, 0].set_title("F1 Score")
-
-        sns.lineplot(
-            x="epoch", y="auroc", data=df, ax=axes[1, 1], label="Training AUROC"
-        )
-        sns.lineplot(
-            x="epoch", y="val_auroc", data=df, ax=axes[1, 1], label="Validation AUROC"
-        )
-        axes[1, 1].set_title("AUROC")
 
         plt.tight_layout()
         plt.show()

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from torchmetrics import Accuracy, F1Score, AUROC
+from torchmetrics import Accuracy, F1Score
+from dataset import NUM_LABELS
 
 
 class BaseEvaluator(ABC):
@@ -8,11 +9,10 @@ class BaseEvaluator(ABC):
         self.log = log
         self.device = device
         self.save = save
-        task = "binary"
+        task = "multiclass"
         self.metrics = {
-            "accuracy": Accuracy(task=task).to(device),
-            "f1": F1Score(task=task).to(device),
-            "auroc": AUROC(task=task).to(device),
+            "accuracy": Accuracy(task=task, num_classes=NUM_LABELS).to(device),
+            "f1": F1Score(task=task, num_classes=NUM_LABELS).to(device),
         }
 
     @abstractmethod
