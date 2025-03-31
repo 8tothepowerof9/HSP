@@ -64,3 +64,18 @@ def cal_all_finger_angles(landmarks):
         angles[joint] = angle
 
     return angles
+
+
+def compute_inter_finger_distances(landmarks):
+    # Fingertip landmark indices
+    fingertip_ids = [4, 8, 12, 16, 20]
+    distances = []
+
+    for i in range(len(fingertip_ids)):
+        for j in range(i + 1, len(fingertip_ids)):
+            dist = np.linalg.norm(
+                landmarks[fingertip_ids[i]] - landmarks[fingertip_ids[j]]
+            )
+            distances.append(dist)
+
+    return np.array(distances)

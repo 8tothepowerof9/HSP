@@ -23,7 +23,7 @@ def capture_data(letter, num_samples=200, delay=0.05):
     collecting = False
     paused = False
     last_capture_time = time.time()
-    next_pause_threshold = int(0.5 * num_samples)
+    next_pause_threshold = int(0.25 * num_samples)
 
     while True:
         ret, frame = cap.read()
@@ -50,7 +50,7 @@ def capture_data(letter, num_samples=200, delay=0.05):
 
                     if len(data) >= next_pause_threshold and len(data) < num_samples:
                         paused = True
-                        next_pause_threshold += int(0.5 * num_samples)
+                        next_pause_threshold += int(0.25 * num_samples)
                         print("Auto-paused at", len(data), "samples")
 
         status_text = "Status: "
@@ -88,11 +88,15 @@ def capture_data(letter, num_samples=200, delay=0.05):
 
     if len(data) == 0:
         print("No data collected!")
-    else:
+    elif len(data) == num_samples:
         df = pd.DataFrame(data)
         csv_path = f"{dataset_path}/{letter}.csv"
         df.to_csv(csv_path, index=False, header=False)
         print(f"Saved {num_samples} samples for letter '{letter}' at {csv_path}")
+    else:
+        print(
+            f"Data collection interrupted. Collected {len(data)} samples for '{letter}'. Not saved!"
+        )
 
 
 if __name__ == "__main__":

@@ -38,16 +38,7 @@ LABEL_MAPPING = {
     "X": 23,
     "Y": 24,
     "Z": 25,
-    "1": 26,
-    "2": 27,
-    "3": 28,
-    "4": 29,
-    "5": 30,
-    "6": 31,
-    "7": 32,
-    "8": 33,
-    "9": 34,
-    "0": 35,
 }
 NUM_LABELS = len(LABEL_MAPPING)
 RANDOM_STATE = 42
+SPATIAL_THRESHOLD = 0.2

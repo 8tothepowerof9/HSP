@@ -1,4 +1,4 @@
 from .graph_baseline import GraphBaseline
-from .res_gcn import RGCModel
+from .gcn import GCNClassifier
 
-MODEL_LIST = {"graph_baseline": GraphBaseline, "rgc": RGCModel}
+MODEL_LIST = {"graph_baseline": GraphBaseline, "gcn": GCNClassifier}

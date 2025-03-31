@@ -10,6 +10,8 @@ from torch_geometric.data import Data
 from .base import BaseEvaluator
 from dataset import *
 from trainers import REPORT_PATH
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
 
 class GNNEvaluator(BaseEvaluator):
@@ -47,6 +49,7 @@ class GNNEvaluator(BaseEvaluator):
         # Step 1: Normalize (translate & scale)
         landmarks = translate_landmarks(landmarks, 0)  # Center the hand at the wrist
         joint_angles = cal_all_finger_angles(landmarks)  # Compute angles
+        inter_dists = compute_inter_finger_distances(landmarks)
         landmarks = scale_landmarks(landmarks, max_dist=1)  # Scale
 
         # Step 2: Construct edges using HAND_CONNECTIONS
@@ -62,12 +65,17 @@ class GNNEvaluator(BaseEvaluator):
         coo = adjacency_matrix.tocoo()
         edge_index = torch.tensor(np.vstack((coo.row, coo.col)), dtype=torch.long)
 
-        # Step 3: Create node features (x, y, z, angle)
-        features = np.hstack([landmarks, np.zeros((landmarks.shape[0], 1))])
+        features = np.hstack(
+            [
+                landmarks,  # (21, 3)
+                np.zeros((landmarks.shape[0], 1)),  # angle placeholder
+                np.tile(inter_dists, (21, 1)),  # broadcast (21, 10)
+            ]
+        )
 
         for joint, (_, p2, _) in FINGER_JOINTS.items():
             angle = joint_angles.get(joint, 0)
-            features[p2, -1] = angle  # Assign angle to middle joint
+            features[p2, 3] = angle  # Assign angle to middle joint
 
         x = torch.tensor(features, dtype=torch.float)
 
@@ -134,6 +142,7 @@ class GNNEvaluator(BaseEvaluator):
                             landmarks, 0
                         )  # Center the hand at the wrist
                         joint_angles = cal_all_finger_angles(landmarks)
+                        inter_dists = compute_inter_finger_distances(landmarks)
                         landmarks = scale_landmarks(landmarks, max_dist=1)
 
                         # Construct Graph
@@ -152,11 +161,15 @@ class GNNEvaluator(BaseEvaluator):
 
                         # Create Node Features (x, y, z, angle)
                         features = np.hstack(
-                            [landmarks, np.zeros((landmarks.shape[0], 1))]
+                            [
+                                landmarks,
+                                np.zeros((landmarks.shape[0], 1)),
+                                np.tile(inter_dists, (21, 1)),
+                            ]
                         )
                         for joint, (_, p2, _) in FINGER_JOINTS.items():
                             angle = joint_angles.get(joint, 0)
-                            features[p2, -1] = angle  # Assign angle to middle joint
+                            features[p2, 3] = angle  # Assign angle to middle joint
 
                         x = torch.tensor(features, dtype=torch.float)
                         graph_data = Data(x=x, edge_index=edge_index)
@@ -261,4 +274,35 @@ class GNNEvaluator(BaseEvaluator):
             plt.savefig(f"{REPORT_PATH}/{self.model.name}_history.png")
 
     def confusion_matrix(self, dataloader):
-        pass
+        y_pred = []
+        y_true = []
+
+        self.model.eval()
+        with torch.no_grad():
+            for data in dataloader:
+                data = data.to(self.device)
+                output = self.model(data)
+
+                # Metrics
+                output = output.argmax(dim=1)
+                y_pred.append(output.cpu().numpy())
+                y_true.append(data.y.cpu().numpy())
+
+        y_true = np.concatenate(y_true)
+        y_pred = np.concatenate(y_pred)
+
+        cm = confusion_matrix(y_true, y_pred)
+        plt.figure(figsize=(10, 8))
+
+        sns.heatmap(
+            cm,
+            annot=True,
+            fmt="d",
+            cmap="Blues",
+            xticklabels=LABEL_MAPPING.keys(),
+            yticklabels=LABEL_MAPPING.keys(),
+        )
+        plt.xlabel("Predicted")
+        plt.ylabel("Actual")
+        plt.title("Confusion Matrix")
+        plt.show()

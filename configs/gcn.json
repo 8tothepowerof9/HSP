@@ -4,8 +4,8 @@
         "bs": 32
     },
     "model": {
-        "type": "rgc", 
-        "name": "rgc",
+        "type": "gcn", 
+        "name": "gcn",
         "hidden_dims": [64, 64, 64],
         "dropout_rate": 0.5
     },
@@ -26,6 +26,6 @@
         "image_path": "tests/A.jpg",
         "realtime_predict": true,
         "confusion_matrix": true,
-        "save": true
+        "save": false
     }
 }

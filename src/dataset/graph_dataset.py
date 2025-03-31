@@ -55,11 +55,19 @@ class GraphHandSignDataset(GeoDataset):
         # Depending on the split, split the data into train and test
         if self.split == "train":
             self.data, _, self.labels, _ = train_test_split(
-                self.data, self.labels, test_size=0.25, random_state=RANDOM_STATE
+                self.data,
+                self.labels,
+                test_size=0.25,
+                random_state=RANDOM_STATE,
+                stratify=self.labels,
             )
         elif self.split == "test":
             _, self.data, _, self.labels = train_test_split(
-                self.data, self.labels, test_size=0.25, random_state=RANDOM_STATE
+                self.data,
+                self.labels,
+                test_size=0.25,
+                random_state=RANDOM_STATE,
+                stratify=self.labels,
             )
         else:
             raise ValueError("Invalid split. Choose either 'train' or 'test'.")
@@ -75,7 +83,6 @@ class GraphHandSignDataset(GeoDataset):
             G.add_edge(edge[0], edge[1])
 
         adjacency_matrix = nx.adjacency_matrix(G)
-
         coo = adjacency_matrix.tocoo()
         edge_index = torch.tensor(np.vstack((coo.row, coo.col)), dtype=torch.long)
 
@@ -94,8 +101,10 @@ class GraphHandSignDataset(GeoDataset):
         # Normalize
         landmarks = translate_landmarks(frame, 0)
 
-        # Compute angles
+        # Compute flexions angles
         joint_angles = cal_all_finger_angles(landmarks)
+
+        inter_dists = compute_inter_finger_distances(landmarks)
 
         landmarks = scale_landmarks(landmarks, max_dist=1)
 
@@ -103,14 +112,22 @@ class GraphHandSignDataset(GeoDataset):
         _, edge_index = self.__construct_graph__(landmarks)
 
         # Add angle as additional feature
-        features = np.hstack([landmarks, np.zeros((landmarks.shape[0], 1))])
+        features = np.hstack(
+            [
+                landmarks,  # (21, 3)
+                np.zeros((landmarks.shape[0], 1)),  # angle placeholder
+                np.tile(inter_dists, (21, 1)),  # broadcast (21, 10)
+            ]
+        )
 
         for joint, (_, p2, _) in FINGER_JOINTS.items():
             angle = joint_angles.get(joint, 0)  # Default to 0 if not found
-            features[p2, -1] = angle  # Assign angle to middle joint
+            features[p2, 3] = angle  # Assign angle to middle joint
 
         # Convert to tensors
-        x = torch.tensor(features, dtype=torch.float)
+        x = torch.tensor(
+            features, dtype=torch.float
+        )  # Shape: (21, 14) if 10 distances used
         y = torch.tensor(label, dtype=torch.long)
 
         return Data(x=x, y=y, edge_index=edge_index)

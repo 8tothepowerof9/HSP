@@ -25,7 +25,7 @@ out_channels = 2  # Number of hand sign classes
 
 # Initialize model
 # model = GraphBaseline(in_channels, hidden_dim, out_channels).to(device)
-model = RGCModel(in_channels, [64, 64, 64], out_channels).to(device)
+model = GCNClassifier(in_channels, [64, 64, 64], out_channels).to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=5e-4)
 criterion = torch.nn.CrossEntropyLoss()
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.5)
