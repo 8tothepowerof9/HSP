@@ -20,9 +20,9 @@
     },
     "eval": {
         "data": "test",
-        "plot_history": true,
-        "evaluate": true,
-        "static_predict": true,
+        "plot_history": false,
+        "evaluate": false,
+        "static_predict": false,
         "image_path": "tests/A.jpg",
         "realtime_predict": true,
         "confusion_matrix": true,

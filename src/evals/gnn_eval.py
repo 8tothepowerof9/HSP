@@ -94,11 +94,19 @@ class GNNEvaluator(BaseEvaluator):
         graph_data = graph_data.to(self.device)
 
         with torch.no_grad():
-            output = self.model(graph_data)
-            pred = output.argmax(dim=1).item()  # Get predicted class index
+            output = self.model(graph_data)  # Shape: (1, num_classes)
+            probs = torch.exp(output)  # Convert log_softmax output to probabilities
+            top_probs, top_indices = torch.topk(probs, k=5, dim=1)
 
-        predicted_label = [key for key, val in LABEL_MAPPING.items() if val == pred][0]
-        return predicted_label
+        top_probs = top_probs.squeeze().cpu().numpy()
+        top_indices = top_indices.squeeze().cpu().numpy()
+
+        # Map indices to labels
+        inv_label_map = {v: k for k, v in LABEL_MAPPING.items()}
+        top_labels = [inv_label_map[idx] for idx in top_indices]
+
+        # Return list of (label, confidence)
+        print(list(zip(top_labels, top_probs)))
 
     def realtime_predict(self):
         cap = cv2.VideoCapture(0)  # Open webcam (0 for default camera)
