@@ -49,8 +49,8 @@ class GNNEvaluator(BaseEvaluator):
         # Step 1: Normalize (translate & scale)
         landmarks = translate_landmarks(landmarks, 0)  # Center the hand at the wrist
         joint_angles = cal_all_finger_angles(landmarks)  # Compute angles
+        landmarks = scale_landmarks(landmarks)  # Scale
         inter_dists = compute_inter_finger_distances(landmarks)
-        landmarks = scale_landmarks(landmarks, max_dist=1)  # Scale
 
         # Step 2: Construct edges using HAND_CONNECTIONS
         G = nx.Graph()
@@ -150,8 +150,10 @@ class GNNEvaluator(BaseEvaluator):
                             landmarks, 0
                         )  # Center the hand at the wrist
                         joint_angles = cal_all_finger_angles(landmarks)
+
+                        landmarks = scale_landmarks(landmarks)
+
                         inter_dists = compute_inter_finger_distances(landmarks)
-                        landmarks = scale_landmarks(landmarks, max_dist=1)
 
                         # Construct Graph
                         G = nx.Graph()

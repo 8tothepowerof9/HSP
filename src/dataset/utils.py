@@ -12,22 +12,29 @@ def translate_landmarks(landmarks, ref_point_idx):
     return translated_landmarks
 
 
-def scale_landmarks(landmarks, max_dist=1):
-    # Compute all pairwise distances
-    distances = np.linalg.norm(
-        landmarks[:, np.newaxis] - landmarks[np.newaxis, :], axis=2
-    )
+# def scale_landmarks(landmarks, max_dist=1):
+#     # Compute all pairwise distances
+#     distances = np.linalg.norm(
+#         landmarks[:, np.newaxis] - landmarks[np.newaxis, :], axis=2
+#     )
 
-    # Find the maximum distance in the current set of landmarks
-    current_max_distance = distances.max()
+#     # Find the maximum distance in the current set of landmarks
+#     current_max_distance = distances.max()
 
-    # Calculate the scale factor
-    scale_factor = max_dist / current_max_distance
+#     # Calculate the scale factor
+#     scale_factor = max_dist / current_max_distance
 
-    # Scale the landmarks
-    scaled_landmarks = landmarks * scale_factor
+#     # Scale the landmarks
+#     scaled_landmarks = landmarks * scale_factor
 
-    return scaled_landmarks
+#     return scaled_landmarks
+
+
+def scale_landmarks(landmarks):
+    wrist = landmarks[0]
+    middle_tip = landmarks[12]
+    scale_factor = 1.0 / np.linalg.norm(middle_tip - wrist)
+    return landmarks * scale_factor
 
 
 def preprocess_landmarks(landmarks, ref_point_idx=0, max_dist=1):

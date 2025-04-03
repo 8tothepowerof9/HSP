@@ -104,9 +104,9 @@ class GraphHandSignDataset(GeoDataset):
         # Compute flexions angles
         joint_angles = cal_all_finger_angles(landmarks)
 
-        inter_dists = compute_inter_finger_distances(landmarks)
+        landmarks = scale_landmarks(landmarks)
 
-        landmarks = scale_landmarks(landmarks, max_dist=1)
+        inter_dists = compute_inter_finger_distances(landmarks)
 
         # Construct graph
         _, edge_index = self.__construct_graph__(landmarks)
