@@ -43,6 +43,48 @@ def preprocess_landmarks(landmarks, ref_point_idx=0, max_dist=1):
     return scaled_landmarks
 
 
+def compute_finger_orientation_angles(landmarks):
+    excluded_joints = [1, 5, 9, 13, 17]  # MCPs and TMC
+    y_vector = np.array([0, 1, 0])  # Global Y-axis reference
+    angles = []
+
+    for joint in excluded_joints:
+        p_joint = landmarks[joint]
+        p_next = landmarks[joint + 1]  # next landmark in finger
+
+        # Project next point onto YZ plane
+        p_next_proj = np.array([0, p_next[1], p_next[2]])
+
+        # Compute yaw
+        v1 = p_next_proj - p_joint
+        cross_yaw = np.cross(y_vector, v1)
+        yaw = np.arcsin(
+            np.clip(
+                np.linalg.norm(cross_yaw)
+                / (np.linalg.norm(y_vector) * np.linalg.norm(v1) + 1e-6),
+                -1.0,
+                1.0,
+            )
+        )
+
+        # Compute roll
+        v2 = p_next - p_joint
+        cross_roll = np.cross(v1, v2)
+        roll = np.arcsin(
+            np.clip(
+                np.linalg.norm(cross_roll)
+                / (np.linalg.norm(v1) * np.linalg.norm(v2) + 1e-6),
+                -1.0,
+                1.0,
+            )
+        )
+
+        angles.append(yaw)
+        angles.append(roll)
+
+    return np.array(angles)
+
+
 def calculate_angle(p1, p2, p3):
     # Create vectors from the points
     v1 = np.array(p1) - np.array(p2)

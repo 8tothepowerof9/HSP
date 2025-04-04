@@ -15,7 +15,7 @@ class GCNClassifier(BaseModel):
         self.weight_decay = config["train"]["weight_decay"]
         self.betas = tuple(config["train"]["betas"])
 
-        in_channels = 14
+        in_channels = 24
         hidden_dims = config["model"]["hidden_dims"]
         out_channels = NUM_LABELS
         dropout_rate = config["model"]["dropout_rate"]

@@ -103,6 +103,7 @@ class GraphHandSignDataset(GeoDataset):
 
         # Compute flexions angles
         joint_angles = cal_all_finger_angles(landmarks)
+        orientation_angles = compute_finger_orientation_angles(landmarks)
 
         landmarks = scale_landmarks(landmarks)
 
@@ -117,6 +118,7 @@ class GraphHandSignDataset(GeoDataset):
                 landmarks,  # (21, 3)
                 np.zeros((landmarks.shape[0], 1)),  # angle placeholder
                 np.tile(inter_dists, (21, 1)),  # broadcast (21, 10)
+                np.tile(orientation_angles, (21, 1)),  # (21, 10)
             ]
         )
 

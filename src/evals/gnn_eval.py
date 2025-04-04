@@ -49,6 +49,7 @@ class GNNEvaluator(BaseEvaluator):
         # Step 1: Normalize (translate & scale)
         landmarks = translate_landmarks(landmarks, 0)  # Center the hand at the wrist
         joint_angles = cal_all_finger_angles(landmarks)  # Compute angles
+        orientation_angles = compute_finger_orientation_angles(landmarks)
         landmarks = scale_landmarks(landmarks)  # Scale
         inter_dists = compute_inter_finger_distances(landmarks)
 
@@ -70,6 +71,7 @@ class GNNEvaluator(BaseEvaluator):
                 landmarks,  # (21, 3)
                 np.zeros((landmarks.shape[0], 1)),  # angle placeholder
                 np.tile(inter_dists, (21, 1)),  # broadcast (21, 10)
+                np.tile(orientation_angles, (21, 1)),  # (21, 10)
             ]
         )
 
@@ -150,9 +152,10 @@ class GNNEvaluator(BaseEvaluator):
                             landmarks, 0
                         )  # Center the hand at the wrist
                         joint_angles = cal_all_finger_angles(landmarks)
-
+                        orientation_angles = compute_finger_orientation_angles(
+                            landmarks
+                        )
                         landmarks = scale_landmarks(landmarks)
-
                         inter_dists = compute_inter_finger_distances(landmarks)
 
                         # Construct Graph
@@ -175,6 +178,7 @@ class GNNEvaluator(BaseEvaluator):
                                 landmarks,
                                 np.zeros((landmarks.shape[0], 1)),
                                 np.tile(inter_dists, (21, 1)),
+                                np.tile(orientation_angles, (21, 1)),
                             ]
                         )
                         for joint, (_, p2, _) in FINGER_JOINTS.items():
